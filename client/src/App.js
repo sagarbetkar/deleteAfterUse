@@ -66,14 +66,83 @@ function App() {
 
 export default App; */
 
-import React, { useEffect, useState } from 'react';
+import React, { Component } from 'react';
 import { io } from 'socket.io-client';
 /* import Messages from './Messages';
 import MessageInput from './MessageInput'; */
 
 import './App.css';
 
-function App() {
+class App extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      socket: null,
+      show: false,
+      isDisabled: false,
+    }
+  }
+
+  componentDidMount() {
+    this.setState({socket: io(`http://${window.location.hostname}:3000`, { transports : ['websocket', 'polling', 'flashsocket'] })});
+  }
+
+  componentDidUpdate() {
+    this.state.socket.on('message', (msg) => {
+      this.setState({isDisabled: !this.state.show})
+    });
+  }
+
+  handleClose = () => {
+    this.state.socket.emit('openModal', false);
+    this.setState({show: false})
+  };
+  handleShow = () => {
+    this.state.socket.emit('openModal', true);
+    this.setState({show: true})
+  };
+
+  render() {
+    const {socket, show, isDisabled} = this.state;
+    console.log(isDisabled);
+    return (
+      <div className="App">
+        <header className="app-header">
+          React Chat
+        </header>
+        { socket ? (
+          <div className="chat-container">
+            {/* <Messages socket={socket} />
+            <MessageInput socket={socket} /> */}
+            <Button variant="primary" onClick={this.handleShow} disabled={isDisabled}>
+              Launch demo modal
+            </Button>
+
+        <Modal show={show} onHide={this.handleClose} centered>
+          <Modal.Header closeButton>
+            <Modal.Title>Modal heading</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>Woohoo, you're reading this text in a modal!</Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={this.handleClose}>
+              Close
+            </Button>
+            <Button variant="primary" onClick={this.handleClose}>
+              Save Changes
+            </Button>
+          </Modal.Footer>
+        </Modal>
+          </div>
+        ) : (
+          <div>Not Connected</div>
+        )}
+      </div>
+    )
+  }
+}
+
+
+/* function App() {
   const [socket, setSocket] = useState(null);
   const [show, setShow] = useState(false);
 
@@ -100,11 +169,11 @@ function App() {
       </header>
       { socket ? (
         <div className="chat-container">
-          {/* <Messages socket={socket} />
-          <MessageInput socket={socket} /> */}
+          <Messages socket={socket} />
+          <MessageInput socket={socket} />
           <Button variant="primary" onClick={handleShow} >
-        Launch demo modal
-      </Button>
+            Launch demo modal
+          </Button>
 
       <Modal show={show} onHide={handleClose} centered>
         <Modal.Header closeButton>
@@ -126,6 +195,6 @@ function App() {
       )}
     </div>
   );
-}
+} */
 
-export default App;
+export default App; 

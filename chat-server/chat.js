@@ -28,7 +28,7 @@ class Connection {
   }
   
   sendMessage(message) {
-    this.io.sockets.emit('message', message);
+    this.io.sockets.broadcast.emit('message', message);
   }
   
   getMessages() {
