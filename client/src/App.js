@@ -80,6 +80,7 @@ class App extends Component {
       socket: null,
       show: false,
       isDisabled: false,
+      isReload: false,
     }
   }
 
@@ -89,7 +90,16 @@ class App extends Component {
 
   componentDidUpdate() {
     this.state.socket.on('message', (msg) => {
-      this.setState({isDisabled: !this.state.show})
+      this.setState({isDisabled: msg})
+    });
+    
+    this.state.socket.on('reloadMsg', (reloadMsg) => {
+      this.setState({isReload: reloadMsg})
+      console.log("reloadMsg===>",reloadMsg)
+
+        if(reloadMsg) {
+          window.location.reload();
+        }
     });
   }
 
@@ -97,6 +107,12 @@ class App extends Component {
     this.state.socket.emit('openModal', false);
     this.setState({show: false})
   };
+
+  handlePageRefresh = () => {
+    this.state.socket.emit('reloadPage', true);
+    this.setState({isReload: true, show: false});
+  }
+
   handleShow = () => {
     this.state.socket.emit('openModal', true);
     this.setState({show: true})
@@ -117,6 +133,10 @@ class App extends Component {
             <Button variant="primary" onClick={this.handleShow} disabled={isDisabled}>
               Launch demo modal
             </Button>
+            { (!show && isDisabled) && <p style={{color:"red"}}>
+                Someone else is already making some changes, please come back later!
+              </p>}
+
 
         <Modal show={show} onHide={this.handleClose} centered>
           <Modal.Header closeButton>
@@ -127,7 +147,7 @@ class App extends Component {
             <Button variant="secondary" onClick={this.handleClose}>
               Close
             </Button>
-            <Button variant="primary" onClick={this.handleClose}>
+            <Button variant="primary" onClick={this.handlePageRefresh}>
               Save Changes
             </Button>
           </Modal.Footer>

@@ -20,7 +20,12 @@ class Connection {
         console.log("Open Modal ===>", msg)
         this.sendMessage(msg)
     });
+    socket.on('reloadPage', (reloadMsg) => {
+        console.log("Page Reload ===>", reloadMsg)
+        this.sendReloadMessage(reloadMsg)
+    });
     socket.on('message', (value) => this.handleMessage(value));
+
     socket.on('disconnect', () => this.disconnect());
     socket.on('connect_error', (err) => {
       console.log(`connect_error due to ${err.message}`);
@@ -28,11 +33,15 @@ class Connection {
   }
   
   sendMessage(message) {
-    this.io.sockets.broadcast.emit('message', message);
+    this.io.sockets.emit('message', message);
   }
   
   getMessages() {
     messages.forEach((message) => this.sendMessage(message));
+  }
+
+  sendReloadMessage(message) {
+    this.io.sockets.emit('reloadMsg', message);
   }
 
   handleMessage(value) {
