@@ -71,7 +71,7 @@ class Connection {
 
 function chat(io) {
   io.on('connection', (socket) => {
-      console.log("User Connected...")
+      console.log(`User ${socket.id} conneected`);
     new Connection(io, socket);   
   });
 };

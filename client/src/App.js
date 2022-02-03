@@ -81,6 +81,7 @@ class App extends Component {
       show: false,
       isDisabled: false,
       isReload: false,
+      uid:''
     }
   }
 
@@ -94,10 +95,10 @@ class App extends Component {
     });
     
     this.state.socket.on('reloadMsg', (reloadMsg) => {
-      this.setState({isReload: reloadMsg})
+      this.setState({isDisabled: false})
       console.log("reloadMsg===>",reloadMsg)
 
-        if(reloadMsg) {
+        if(this.state.uid !== reloadMsg) {
           window.location.reload();
         }
     });
@@ -109,8 +110,9 @@ class App extends Component {
   };
 
   handlePageRefresh = () => {
-    this.state.socket.emit('reloadPage', true);
-    this.setState({isReload: true, show: false});
+    let userId= this.state.socket.id;
+    this.state.socket.emit('reloadPage', userId);
+    this.setState({show: false, uid:userId});
   }
 
   handleShow = () => {
